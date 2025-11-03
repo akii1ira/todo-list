@@ -1,4 +1,4 @@
-module github.com/akii1ira/todo-server
+module github.com/akii1ira/todo-list
 
 go 1.25
 

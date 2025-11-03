@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"todo-list/handlers"
+	"github.com/akii1ira/todo-list/handlers"
 )
 
 func main() {
