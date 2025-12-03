@@ -13,6 +13,7 @@ func main() {
 		fmt.Fprintln(w, "🚀 Todo List API running. Use /api/todo-list/tasks")
 	})
 
+	// список задач + создание
 	http.HandleFunc("/api/todo-list/tasks", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
@@ -23,6 +24,9 @@ func main() {
 			handlers.JSONWrite(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
 		}
 	})
+
+	// обработка ID: GET, PUT, DELETE, /done
+	http.HandleFunc("/api/todo-list/tasks/", handlers.TaskByIDHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {
