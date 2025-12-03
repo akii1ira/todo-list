@@ -1,169 +1,172 @@
-# 📝 Todo List API (Go)
+# Todo List API
 
-## 📌 Overview
+RESTful API для микросервиса **Todo List**, который позволяет создавать, обновлять, удалять и отмечать задачи как выполненные.
 
-This is a simple RESTful API built with **Go (Golang)** that allows users to manage a list of tasks.
-Each task has a title, an activation date, and a completion status.
-The data is stored **in memory** (no database) using Go’s `sync.Map`.
-
-The project follows a clean structure with separated packages:
-
-- `handlers/` — API endpoint logic
-- `models/` — data structures
-- `main.go` — app entry point
+Проект контейнеризован с помощью Docker и запускается через Docker Compose.
 
 ---
 
-## ⚙️ Features
+## 📌 Описание проекта
 
-- Create, update, delete, and list tasks
-- Mark tasks as done
-- Filter tasks by status (`active` or `done`)
-- Simple in-memory storage (no external DB required)
-- Ready for containerization with Docker
+Сервис Todo List позволяет:
 
----
-
-## 🚀 Technologies
-
-- **Language:** Go 1.22+
-- **Framework:** net/http (standard library)
-- **Tools:** Docker, Makefile
+- Создавать новые задачи с обязательными полями `title` и `activeAt`.
+- Обновлять существующие задачи.
+- Помечать задачи как выполненные.
+- Удалять задачи.
+- Просматривать список задач по статусу (`active` или `done`).
 
 ---
 
-## 🧩 API Endpoints
+## ⚙️ Требования
 
-### ➕ Create Task
+- Go 1.25+
+- Docker
+- Docker Compose
+- Git
+- Render (для деплоя)
 
-**POST** `/api/todo-list/tasks`
+---
 
-**Request Body:**
+## 🛠 Установка
 
-```json
-{
-  "title": "Buy groceries",
-  "activeAt": "2025-10-31"
-}
+1. Клонируй репозиторий:
+
+```bash
+git clone <YOUR_REPO_URL>
+cd todo-list
 ```
 
-**Response:**
+2. Собери и запусти контейнеры:
 
-```json
-{
-  "id": "a1b2c3d4-e5f6-7890-1234-56789abcde"
-}
+```bash
+docker compose up --build -d
+```
+
+3. Сервер доступен по адресу:
+
+```
+http://localhost:8080
 ```
 
 ---
 
-### ✏️ Update Task
+## 🚀 Запуск проекта
 
-**PUT** `/api/todo-list/tasks/{id}`
+- Через Docker Compose:
 
-**Request Body:**
+```bash
+docker compose up --build -d
+```
+
+- Остановить:
+
+```bash
+docker compose down
+```
+
+---
+
+## 📝 Использование API
+
+### Создать задачу
+
+**POST /api/todo-list/tasks**
+Тело запроса:
 
 ```json
 {
-  "title": "Buy milk and bread",
-  "activeAt": "2025-11-01"
+  "title": "Купить книгу",
+  "activeAt": "2025-12-03"
 }
 ```
 
-**Response:** `204 No Content`
+Ответ:
+
+- `201` + ID задачи, если задача успешно создана.
+- `404` если задача с таким `title` и `activeAt` уже существует.
 
 ---
 
-### ✅ Mark as Done
+### Обновить задачу
 
-**PUT** `/api/todo-list/tasks/{id}/done`
-**Response:** `204 No Content`
+**PUT /api/todo-list/tasks/{ID}**
+Тело запроса:
+
+```json
+{
+  "title": "Купить книгу - Обновлённо",
+  "activeAt": "2025-12-03"
+}
+```
+
+Ответ:
+
+- `204` если задача обновлена.
+- `404` если задача не найдена.
 
 ---
 
-### ❌ Delete Task
+### Пометить задачу выполненной
 
-**DELETE** `/api/todo-list/tasks/{id}`
-**Response:** `204 No Content`
+**PUT /api/todo-list/tasks/{ID}/done**
+Ответ:
+
+- `204` если задача помечена как выполненная.
+- `404` если задача не найдена.
 
 ---
 
-### 📋 List Tasks
+### Удалить задачу
 
-**GET** `/api/todo-list/tasks?status=active`
-**GET** `/api/todo-list/tasks?status=done`
+**DELETE /api/todo-list/tasks/{ID}**
+Ответ:
 
-**Response:**
+- `204` если задача удалена.
+- `404` если задача не найдена.
+
+---
+
+### Список задач
+
+**GET /api/todo-list/tasks?status=active|done**
+
+- `status` по умолчанию: `active`.
+- Возвращаются задачи, у которых `activeAt <= текущей дате` для `active`.
+- Задачи отсортированы по дате создания.
+- Если день выходной, к `title` добавляется префикс `"ВЫХОДНОЙ - "`.
+
+Пример ответа:
 
 ```json
 [
   {
-    "id": "a1b2c3",
-    "title": "Buy groceries",
-    "activeAt": "2025-10-31"
+    "id": "65f19340848f4be025160391",
+    "title": "Купить книгу",
+    "activeAt": "2025-12-03"
   }
 ]
 ```
 
 ---
 
-## 🏗️ Project Structure
+## 📦 Контейнеризация
 
-```
-todo-list/
-│
-├── handlers/
-│   ├── tasks.go        # All request handlers (create, update, delete, list)
-│   └── utils.go        # Helper functions for JSON and validation
-│
-├── models/
-│   └── task.go         # Task struct definition
-│
-├── main.go             # Application entry point
-├── Dockerfile          # Docker build configuration
-├── docker-compose.yml  # Optional Docker Compose setup
-├── Makefile            # Useful shortcuts for build/run
-└── README.md           # Documentation
-```
+- **Dockerfile**: создание образа Go-приложения.
+- **docker-compose.yml**: запуск сервиса через Docker Compose.
 
 ---
 
-## 🧰 Setup and Run
+## 📖 Документация
 
-### ✅ Run locally
-
-Make sure you have Go installed:
-
-```bash
-go run main.go
-```
-
-Server runs at:  
-👉 [https://todo-list-la0q.onrender.com](https://todo-list-la0q.onrender.com)
+Все эндпоинты API описаны выше. Примеры запросов можно проверить с помощью `curl` или Postman.
 
 ---
 
-### 🐳 Run with Docker
+## ✅ Критерии проверки
 
-If you have Docker installed:
-
-```bash
-make build
-make up
-```
-
-Or manually:
-
-```bash
-docker build -t todo-list .
-docker run -p 8080:8080 todo-list
-```
-
----
-
-## 🌐 Deployment
-
-You can deploy easily to platforms like **Render** or **Railway**, since the app already includes a `Dockerfile`.
-Render will automatically detect and run it.
-
----
+- Все CRUD операции работают корректно.
+- Валидация входных данных (`title` <= 200 символов, корректная дата).
+- Сервис контейнеризован и запускается через Docker Compose.
+- README.md содержит полные инструкции по установке, запуску и использованию API.
+- Проект доступен на GitHub и может быть задеплоен на Render.
